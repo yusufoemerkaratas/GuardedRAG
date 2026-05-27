@@ -45,7 +45,7 @@ http://127.0.0.1:8000/docs
 
 ## Docker Setup
 
-Create a local environment file:
+Optionally create a local environment file:
 
 ```bash
 cp .env.example .env
@@ -91,4 +91,3 @@ Example response:
   "service": "guardedrag"
 }
 ```
-
