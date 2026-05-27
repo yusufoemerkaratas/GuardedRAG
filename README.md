@@ -10,6 +10,8 @@ fallback behavior when the provided context is not enough.
 Issue #1 provides the project foundation:
 
 - FastAPI application package.
+- Clean `app/api`, `app/core`, `app/schemas`, and `app/services` folders.
+- Root endpoint with project metadata.
 - `/health` endpoint.
 - Pydantic response schema.
 - Basic pytest coverage.
@@ -78,6 +80,19 @@ python -c "from app.main import app; print(app.title)"
 ```
 
 ## API
+
+### `GET /`
+
+Returns project metadata.
+
+Example response:
+
+```json
+{
+  "name": "GuardedRAG API",
+  "version": "0.1.0"
+}
+```
 
 ### `GET /health`
 
