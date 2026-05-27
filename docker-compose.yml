@@ -4,3 +4,16 @@ services:
     container_name: guardedrag_api
     ports:
       - "8000:8000"
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_NAME: ${APP_NAME:-GuardedRAG API}
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      SERVICE_NAME: ${SERVICE_NAME:-guardedrag}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      CHAT_MODEL: ${CHAT_MODEL:-gpt-4.1-mini}
+      VECTOR_STORE_PATH: ${VECTOR_STORE_PATH:-data/vector_store}
+      TOP_K: ${TOP_K:-5}
+      SIMILARITY_THRESHOLD: ${SIMILARITY_THRESHOLD:-0.75}
+      CHUNK_SIZE: ${CHUNK_SIZE:-800}
+      CHUNK_OVERLAP: ${CHUNK_OVERLAP:-120}
