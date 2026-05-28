@@ -16,6 +16,7 @@ Issue #1 provides the project foundation:
 - Pydantic response schema.
 - Basic pytest coverage.
 - Docker and Docker Compose setup.
+- Document upload endpoint for TXT and PDF files.
 
 ## Local Setup
 
@@ -157,5 +158,27 @@ Example response:
       "detail": "Application settings loaded."
     }
   ]
+}
+```
+
+### `POST /documents/upload`
+
+Uploads a TXT or PDF document for ingestion and returns basic metadata.
+Unsupported file types and empty files return a clean `400` response.
+
+Example request:
+
+```bash
+curl -F "file=@notes.txt" http://127.0.0.1:8000/documents/upload
+```
+
+Example response:
+
+```json
+{
+  "document_id": "5d58785b-79da-4ed8-a6f9-07ad2f02ec7f",
+  "filename": "notes.txt",
+  "content_type": "text/plain",
+  "character_count": 42
 }
 ```
