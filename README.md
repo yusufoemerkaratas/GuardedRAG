@@ -17,6 +17,7 @@ Issue #1 provides the project foundation:
 - Basic pytest coverage.
 - Docker and Docker Compose setup.
 - Document upload endpoint for TXT and PDF files.
+- Page-level PDF text extraction service.
 
 ## Local Setup
 
@@ -165,6 +166,8 @@ Example response:
 
 Uploads a TXT or PDF document for ingestion and returns basic metadata.
 Unsupported file types and empty files return a clean `400` response.
+PDF files are processed with a page-level extractor so later ingestion steps can
+preserve page numbers for citations and retrieval context.
 
 Example request:
 
