@@ -18,6 +18,7 @@ Issue #1 provides the project foundation:
 - Docker and Docker Compose setup.
 - Document upload endpoint for TXT and PDF files.
 - Page-level PDF text extraction service.
+- Recursive text chunking with stable chunk metadata.
 
 ## Local Setup
 
@@ -97,8 +98,8 @@ Configuration is read from environment variables. Local secrets should stay in
 | `VECTOR_STORE_PATH` | `data/vector_store` | Local vector store directory. |
 | `TOP_K` | `5` | Number of retrieved chunks to return. |
 | `SIMILARITY_THRESHOLD` | `0.75` | Minimum retrieval similarity score. |
-| `CHUNK_SIZE` | `800` | Target chunk size for future ingestion. |
-| `CHUNK_OVERLAP` | `120` | Overlap between neighboring chunks. |
+| `CHUNK_SIZE` | `1000` | Target chunk size for document ingestion. |
+| `CHUNK_OVERLAP` | `200` | Overlap between neighboring chunks. |
 
 ## Tests
 
