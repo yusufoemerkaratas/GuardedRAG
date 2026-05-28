@@ -19,8 +19,8 @@ class Settings(BaseModel):
     vector_store_path: Path = Path("data/vector_store")
     top_k: int = Field(default=5, ge=1)
     similarity_threshold: float = Field(default=0.75, ge=0.0, le=1.0)
-    chunk_size: int = Field(default=800, ge=100)
-    chunk_overlap: int = Field(default=120, ge=0)
+    chunk_size: int = Field(default=1000, ge=100)
+    chunk_overlap: int = Field(default=200, ge=0)
 
 
 def _optional_env(name: str) -> Optional[str]:
@@ -56,8 +56,8 @@ def load_settings() -> Settings:
         vector_store_path=Path(os.getenv("VECTOR_STORE_PATH", "data/vector_store")),
         top_k=_int_env("TOP_K", 5),
         similarity_threshold=_float_env("SIMILARITY_THRESHOLD", 0.75),
-        chunk_size=_int_env("CHUNK_SIZE", 800),
-        chunk_overlap=_int_env("CHUNK_OVERLAP", 120),
+        chunk_size=_int_env("CHUNK_SIZE", 1000),
+        chunk_overlap=_int_env("CHUNK_OVERLAP", 200),
     )
 
 
