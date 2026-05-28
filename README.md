@@ -66,6 +66,12 @@ http://127.0.0.1:8000
 http://127.0.0.1:8000/docs
 ```
 
+Verify readiness:
+
+```bash
+curl http://127.0.0.1:8000/ready
+```
+
 Read container logs:
 
 ```bash
@@ -131,5 +137,25 @@ Example response:
 {
   "status": "ok",
   "service": "guardedrag"
+}
+```
+
+### `GET /ready`
+
+Returns readiness status for core application dependencies and settings.
+
+Example response:
+
+```json
+{
+  "status": "ready",
+  "service": "guardedrag",
+  "checks": [
+    {
+      "name": "configuration",
+      "available": true,
+      "detail": "Application settings loaded."
+    }
+  ]
 }
 ```
