@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
 from app.core.config import settings
-from app.schemas.system import HealthResponse, RootResponse
+from app.schemas.system import HealthResponse, ReadinessResponse, RootResponse
+from app.services.readiness import build_readiness_response
 
 
 router = APIRouter(tags=["system"])
@@ -19,3 +20,7 @@ def root() -> RootResponse:
 def health() -> HealthResponse:
     return HealthResponse(status="ok", service=settings.service_name)
 
+
+@router.get("/ready", response_model=ReadinessResponse)
+def ready() -> ReadinessResponse:
+    return build_readiness_response(settings)
