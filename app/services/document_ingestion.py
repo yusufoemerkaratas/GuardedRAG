@@ -1,17 +1,12 @@
 from __future__ import annotations
 
-import re
-from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
 from pydantic import BaseModel
 
-try:
-    from pypdf import PdfReader
-except ImportError:  # pragma: no cover - exercised only when optional package is missing
-    PdfReader = None
+from app.services.pdf_text_extractor import PDFExtractionError, PDFTextExtractor
 
 
 SUPPORTED_EXTENSIONS = {".txt", ".pdf"}
@@ -57,23 +52,14 @@ async def ingest_uploaded_document(file: UploadFile) -> DocumentMetadata:
 def _extract_text(content: bytes, extension: str) -> str:
     if extension == ".txt":
         return content.decode("utf-8", errors="replace")
-    return _extract_pdf_text(content)
-
-
-def _extract_pdf_text(content: bytes) -> str:
-    if PdfReader is not None:
-        try:
-            reader = PdfReader(BytesIO(content))
-            return "\n".join(page.extract_text() or "" for page in reader.pages)
-        except Exception:
-            pass
-
-    decoded = content.decode("latin-1", errors="ignore")
-    return "\n".join(_decode_pdf_literal(value) for value in re.findall(r"\((.*?)\)", decoded, re.DOTALL))
-
-
-def _decode_pdf_literal(value: str) -> str:
-    return value.replace(r"\(", "(").replace(r"\)", ")").replace(r"\\", "\\")
+    try:
+        result = PDFTextExtractor().extract(content)
+    except PDFExtractionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not extract text from PDF.",
+        ) from exc
+    return "\n".join(page.text for page in result.pages)
 
 
 def _default_content_type(extension: str) -> str:
