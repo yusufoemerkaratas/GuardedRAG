@@ -24,8 +24,8 @@ def test_settings_use_safe_defaults(monkeypatch) -> None:
     assert settings.vector_store_path == Path("data/vector_store")
     assert settings.top_k == 5
     assert settings.similarity_threshold == 0.75
-    assert settings.chunk_size == 800
-    assert settings.chunk_overlap == 120
+    assert settings.chunk_size == 1000
+    assert settings.chunk_overlap == 200
 
 
 def test_settings_read_environment_overrides(monkeypatch) -> None:
@@ -54,4 +54,3 @@ def test_settings_read_environment_overrides(monkeypatch) -> None:
     assert settings.similarity_threshold == 0.61
     assert settings.chunk_size == 1200
     assert settings.chunk_overlap == 150
-
