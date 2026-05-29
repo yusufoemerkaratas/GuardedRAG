@@ -68,4 +68,9 @@ def test_openapi_documents_upload_endpoint() -> None:
     response = client.get("/openapi.json")
 
     assert response.status_code == 200
-    assert "/documents/upload" in response.json()["paths"]
+    openapi = response.json()
+    assert "/documents/upload" in openapi["paths"]
+    upload_response = openapi["paths"]["/documents/upload"]["post"]["responses"]["200"]
+    assert upload_response["content"]["application/json"]["schema"] == {
+        "$ref": "#/components/schemas/DocumentUploadResponse"
+    }
