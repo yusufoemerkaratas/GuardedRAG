@@ -17,6 +17,6 @@ services:
       VECTOR_STORE_PATH: ${VECTOR_STORE_PATH:-data/vector_store}
       TOP_K: ${TOP_K:-5}
       SIMILARITY_THRESHOLD: ${SIMILARITY_THRESHOLD:-0.75}
-      CHUNK_SIZE: ${CHUNK_SIZE:-800}
-      CHUNK_OVERLAP: ${CHUNK_OVERLAP:-120}
+      CHUNK_SIZE: ${CHUNK_SIZE:-1000}
+      CHUNK_OVERLAP: ${CHUNK_OVERLAP:-200}
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
