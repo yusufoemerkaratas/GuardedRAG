@@ -19,6 +19,8 @@ Issue #1 provides the project foundation:
 - Document upload endpoint for TXT and PDF files.
 - Page-level PDF text extraction service.
 - Recursive text chunking with stable chunk metadata.
+- Embedding service with local fallback for offline development and tests.
+- Persistent local vector store for embedded document chunks.
 
 ## Local Setup
 
