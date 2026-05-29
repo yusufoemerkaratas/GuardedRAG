@@ -21,6 +21,7 @@ Issue #1 provides the project foundation:
 - Recursive text chunking with stable chunk metadata.
 - Embedding service with local fallback for offline development and tests.
 - Persistent local vector store for embedded document chunks.
+- Retrieval and RAG query endpoints with source-aware responses.
 
 ## Local Setup
 
@@ -221,5 +222,38 @@ Example response:
   "result_count": 1,
   "answerable": true,
   "similarity_threshold": 0.75
+}
+```
+
+### `POST /rag/query`
+
+Runs retrieval first, builds context only from chunks that pass the similarity
+threshold, and returns a source-aware answer. If no context is strong enough,
+the endpoint returns a fallback response without generating an answer.
+
+Example request:
+
+```bash
+curl -X POST http://127.0.0.1:8000/rag/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "What does the source say?", "top_k": 3}'
+```
+
+Example response:
+
+```json
+{
+  "answer": "Based on the retrieved context: GuardedRAG source text",
+  "answerable": true,
+  "confidence": 0.91,
+  "sources": [
+    {
+      "document_id": "5d58785b-79da-4ed8-a6f9-07ad2f02ec7f",
+      "chunk_id": "4c912f5b6cb4d6717a4f7fcd3dd64d9cb389d0cf58d7a3bdb6e95da86b072e42",
+      "chunk_index": 0,
+      "page_number": null,
+      "score": 0.91
+    }
+  ]
 }
 ```

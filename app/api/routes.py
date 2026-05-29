@@ -2,9 +2,11 @@ from fastapi import APIRouter, UploadFile
 
 from app.core.config import settings
 from app.schemas.documents import DocumentUploadResponse
+from app.schemas.rag import RAGQueryRequest, RAGQueryResponse
 from app.schemas.retrieval import RetrievalSearchRequest, RetrievalSearchResponse
 from app.schemas.system import HealthResponse, ReadinessResponse, RootResponse
 from app.services.document_ingestion import VECTOR_STORE, ingest_uploaded_document
+from app.services.rag import RAGService
 from app.services.readiness import build_readiness_response
 from app.services.retrieval import RetrievalService
 
@@ -46,5 +48,18 @@ def search_retrieval(
 ) -> RetrievalSearchResponse:
     return RetrievalService(vector_store=VECTOR_STORE).search(
         query=request.query,
+        top_k=request.top_k,
+    )
+
+
+@router.post(
+    "/rag/query",
+    response_model=RAGQueryResponse,
+    tags=["rag"],
+)
+def query_rag(request: RAGQueryRequest) -> RAGQueryResponse:
+    retrieval_service = RetrievalService(vector_store=VECTOR_STORE)
+    return RAGService(retrieval_service=retrieval_service).query(
+        question=request.question,
         top_k=request.top_k,
     )
