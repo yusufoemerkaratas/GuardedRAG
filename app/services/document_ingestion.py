@@ -4,19 +4,12 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
-from pydantic import BaseModel
 
+from app.schemas.documents import DocumentMetadata
 from app.services.pdf_text_extractor import PDFExtractionError, PDFTextExtractor
 
 
 SUPPORTED_EXTENSIONS = {".txt", ".pdf"}
-
-
-class DocumentMetadata(BaseModel):
-    document_id: str
-    filename: str
-    content_type: str
-    character_count: int
 
 
 DOCUMENT_METADATA_STORE: dict[str, DocumentMetadata] = {}
