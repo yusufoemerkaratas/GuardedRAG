@@ -20,11 +20,18 @@ class StoredVector(BaseModel):
     dimensions: int = Field(ge=1)
 
 
+class VectorSearchMatch(StoredVector):
+    score: float
+
+
 class VectorStore(Protocol):
     def upsert_chunks(self, chunks: list[ChunkEmbedding]) -> None:
         ...
 
     def list_document_vectors(self, document_id: str) -> list[StoredVector]:
+        ...
+
+    def search(self, embedding: list[float], top_k: int) -> list[VectorSearchMatch]:
         ...
 
 
@@ -106,6 +113,42 @@ class SQLiteVectorStore:
             for row in rows
         ]
 
+    def search(self, embedding: list[float], top_k: int) -> list[VectorSearchMatch]:
+        if top_k <= 0:
+            raise ValueError("top_k must be greater than 0.")
+
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    chunk_id,
+                    document_id,
+                    chunk_index,
+                    page_number,
+                    text,
+                    embedding,
+                    dimensions
+                FROM chunk_vectors
+                """
+            ).fetchall()
+
+        matches: list[VectorSearchMatch] = []
+        for row in rows:
+            stored_embedding = json.loads(row["embedding"])
+            matches.append(
+                VectorSearchMatch(
+                    chunk_id=row["chunk_id"],
+                    document_id=row["document_id"],
+                    chunk_index=row["chunk_index"],
+                    page_number=row["page_number"],
+                    text=row["text"],
+                    embedding=stored_embedding,
+                    dimensions=row["dimensions"],
+                    score=_cosine_similarity(embedding, stored_embedding),
+                )
+            )
+        return sorted(matches, key=lambda match: match.score, reverse=True)[:top_k]
+
     def _initialize(self) -> None:
         with self._connect() as connection:
             connection.execute(
@@ -132,3 +175,18 @@ class SQLiteVectorStore:
         connection = sqlite3.connect(self.database_path)
         connection.row_factory = sqlite3.Row
         return connection
+
+
+def _cosine_similarity(left: list[float], right: list[float]) -> float:
+    shared_dimensions = min(len(left), len(right))
+    if shared_dimensions == 0:
+        return 0.0
+
+    left_values = left[:shared_dimensions]
+    right_values = right[:shared_dimensions]
+    dot_product = sum(a * b for a, b in zip(left_values, right_values))
+    left_norm = sum(value * value for value in left_values) ** 0.5
+    right_norm = sum(value * value for value in right_values) ** 0.5
+    if left_norm == 0 or right_norm == 0:
+        return 0.0
+    return dot_product / (left_norm * right_norm)
