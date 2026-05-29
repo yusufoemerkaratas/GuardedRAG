@@ -49,12 +49,15 @@ def test_retrieval_service_returns_top_k_with_scores_and_metadata(tmp_path) -> N
     service = RetrievalService(
         vector_store=store,
         embedding_service=FakeEmbeddingService(),
+        similarity_threshold=0.0,
     )
 
     response = service.search(query="alpha", top_k=1)
 
     assert response.query == "alpha"
     assert response.result_count == 1
+    assert response.answerable is True
+    assert response.similarity_threshold == 0.0
     assert response.results[0].document_id == "doc-1"
     assert response.results[0].chunk_id == "chunk-best"
     assert response.results[0].chunk_index == 0
@@ -68,6 +71,7 @@ def test_retrieval_service_returns_clean_empty_response(tmp_path) -> None:
     service = RetrievalService(
         vector_store=store,
         embedding_service=FakeEmbeddingService(),
+        similarity_threshold=0.75,
     )
 
     response = service.search(query="anything", top_k=5)
@@ -75,6 +79,66 @@ def test_retrieval_service_returns_clean_empty_response(tmp_path) -> None:
     assert response.query == "anything"
     assert response.results == []
     assert response.result_count == 0
+    assert response.answerable is False
+    assert response.similarity_threshold == 0.75
+
+
+def test_retrieval_service_filters_low_score_results(tmp_path) -> None:
+    store = _store_with_chunks(tmp_path)
+    service = RetrievalService(
+        vector_store=store,
+        embedding_service=FakeEmbeddingService(),
+        similarity_threshold=0.75,
+    )
+
+    response = service.search(query="alpha", top_k=2)
+
+    assert response.result_count == 1
+    assert response.answerable is True
+    assert response.results[0].chunk_id == "chunk-best"
+    assert response.results[0].score == 1.0
+
+
+def test_retrieval_service_marks_unanswerable_when_all_scores_are_low(tmp_path) -> None:
+    store = SQLiteVectorStore(tmp_path / "low-score-vector-store")
+    store.upsert_chunks(
+        [
+            ChunkEmbedding(
+                document_id="doc-2",
+                chunk_id="chunk-other",
+                chunk_index=0,
+                page_number=None,
+                text="different topic",
+                embedding=[0.0, 1.0],
+                dimensions=2,
+            )
+        ]
+    )
+    service = RetrievalService(
+        vector_store=store,
+        embedding_service=FakeEmbeddingService(),
+        similarity_threshold=0.75,
+    )
+
+    response = service.search(query="alpha", top_k=2)
+
+    assert response.results == []
+    assert response.result_count == 0
+    assert response.answerable is False
+
+
+def test_retrieval_service_logs_score_distribution(tmp_path, caplog) -> None:
+    store = _store_with_chunks(tmp_path)
+    service = RetrievalService(
+        vector_store=store,
+        embedding_service=FakeEmbeddingService(),
+        similarity_threshold=0.5,
+    )
+
+    with caplog.at_level("INFO", logger="app.services.retrieval"):
+        service.search(query="alpha", top_k=2)
+
+    assert "retrieval_score_distribution" in caplog.text
 
 
 def test_retrieval_endpoint_uses_request_top_k(tmp_path, monkeypatch) -> None:
@@ -86,6 +150,7 @@ def test_retrieval_endpoint_uses_request_top_k(tmp_path, monkeypatch) -> None:
         lambda vector_store: RetrievalService(
             vector_store=vector_store,
             embedding_service=FakeEmbeddingService(),
+            similarity_threshold=0.0,
         ),
     )
 
@@ -94,6 +159,7 @@ def test_retrieval_endpoint_uses_request_top_k(tmp_path, monkeypatch) -> None:
     )
 
     assert response.result_count == 1
+    assert response.answerable is True
     assert response.results[0].chunk_id == "chunk-best"
 
 
