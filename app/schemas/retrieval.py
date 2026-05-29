@@ -19,3 +19,5 @@ class RetrievalSearchResponse(BaseModel):
     query: str
     results: list[RetrievalSearchResult]
     result_count: int = Field(ge=0)
+    answerable: bool
+    similarity_threshold: float = Field(ge=0.0, le=1.0)

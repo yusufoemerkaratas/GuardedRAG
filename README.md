@@ -191,8 +191,9 @@ Example response:
 
 ### `POST /retrieval/search`
 
-Embeds a query and returns the most relevant indexed chunks with scores and
-metadata. Empty vector stores return an empty result list.
+Embeds a query and returns the most relevant indexed chunks that pass the
+configured similarity threshold. Empty vector stores or weak matches return an
+empty result list with `answerable=false`.
 
 Example request:
 
@@ -217,6 +218,8 @@ Example response:
       "score": 0.91
     }
   ],
-  "result_count": 1
+  "result_count": 1,
+  "answerable": true,
+  "similarity_threshold": 0.75
 }
 ```
