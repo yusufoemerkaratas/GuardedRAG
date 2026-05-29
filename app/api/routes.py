@@ -2,9 +2,11 @@ from fastapi import APIRouter, UploadFile
 
 from app.core.config import settings
 from app.schemas.documents import DocumentUploadResponse
+from app.schemas.retrieval import RetrievalSearchRequest, RetrievalSearchResponse
 from app.schemas.system import HealthResponse, ReadinessResponse, RootResponse
-from app.services.document_ingestion import ingest_uploaded_document
+from app.services.document_ingestion import VECTOR_STORE, ingest_uploaded_document
 from app.services.readiness import build_readiness_response
+from app.services.retrieval import RetrievalService
 
 
 router = APIRouter(tags=["system"])
@@ -32,3 +34,17 @@ def ready() -> ReadinessResponse:
 async def upload_document(file: UploadFile) -> DocumentUploadResponse:
     metadata = await ingest_uploaded_document(file)
     return DocumentUploadResponse(**metadata.model_dump())
+
+
+@router.post(
+    "/retrieval/search",
+    response_model=RetrievalSearchResponse,
+    tags=["retrieval"],
+)
+def search_retrieval(
+    request: RetrievalSearchRequest,
+) -> RetrievalSearchResponse:
+    return RetrievalService(vector_store=VECTOR_STORE).search(
+        query=request.query,
+        top_k=request.top_k,
+    )

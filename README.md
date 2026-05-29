@@ -188,3 +188,35 @@ Example response:
   "character_count": 42
 }
 ```
+
+### `POST /retrieval/search`
+
+Embeds a query and returns the most relevant indexed chunks with scores and
+metadata. Empty vector stores return an empty result list.
+
+Example request:
+
+```bash
+curl -X POST http://127.0.0.1:8000/retrieval/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What does the source say?", "top_k": 3}'
+```
+
+Example response:
+
+```json
+{
+  "query": "What does the source say?",
+  "results": [
+    {
+      "document_id": "5d58785b-79da-4ed8-a6f9-07ad2f02ec7f",
+      "chunk_id": "4c912f5b6cb4d6717a4f7fcd3dd64d9cb389d0cf58d7a3bdb6e95da86b072e42",
+      "chunk_index": 0,
+      "page_number": null,
+      "text": "GuardedRAG source text",
+      "score": 0.91
+    }
+  ],
+  "result_count": 1
+}
+```
