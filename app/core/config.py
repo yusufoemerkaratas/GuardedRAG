@@ -15,8 +15,13 @@ class Settings(BaseModel):
     openai_api_key: Optional[str] = None
     embedding_model: str = "text-embedding-3-small"
     chat_model: str = "gpt-4.1-mini"
+    llm_provider: str = "github"
     llm_timeout_seconds: float = Field(default=30.0, gt=0)
     llm_max_retries: int = Field(default=2, ge=0)
+    github_models_token: Optional[str] = None
+    github_models_model: str = "openai/gpt-4.1"
+    github_models_base_url: str = "https://models.github.ai/inference/chat/completions"
+    github_models_api_version: str = "2026-03-10"
 
     vector_store_path: Path = Path("data/vector_store")
     top_k: int = Field(default=5, ge=1)
@@ -55,8 +60,19 @@ def load_settings() -> Settings:
         openai_api_key=_optional_env("OPENAI_API_KEY"),
         embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
         chat_model=os.getenv("CHAT_MODEL", "gpt-4.1-mini"),
+        llm_provider=os.getenv("LLM_PROVIDER", "github"),
         llm_timeout_seconds=_float_env("LLM_TIMEOUT_SECONDS", 30.0),
         llm_max_retries=_int_env("LLM_MAX_RETRIES", 2),
+        github_models_token=_optional_env("GITHUB_MODELS_TOKEN"),
+        github_models_model=os.getenv("GITHUB_MODELS_MODEL", "openai/gpt-4.1"),
+        github_models_base_url=os.getenv(
+            "GITHUB_MODELS_BASE_URL",
+            "https://models.github.ai/inference/chat/completions",
+        ),
+        github_models_api_version=os.getenv(
+            "GITHUB_MODELS_API_VERSION",
+            "2026-03-10",
+        ),
         vector_store_path=Path(os.getenv("VECTOR_STORE_PATH", "data/vector_store")),
         top_k=_int_env("TOP_K", 5),
         similarity_threshold=_float_env("SIMILARITY_THRESHOLD", 0.75),
