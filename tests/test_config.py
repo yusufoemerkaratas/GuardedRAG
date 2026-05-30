@@ -8,6 +8,8 @@ def test_settings_use_safe_defaults(monkeypatch) -> None:
         "OPENAI_API_KEY",
         "EMBEDDING_MODEL",
         "CHAT_MODEL",
+        "LLM_TIMEOUT_SECONDS",
+        "LLM_MAX_RETRIES",
         "VECTOR_STORE_PATH",
         "TOP_K",
         "SIMILARITY_THRESHOLD",
@@ -21,6 +23,8 @@ def test_settings_use_safe_defaults(monkeypatch) -> None:
     assert settings.openai_api_key is None
     assert settings.embedding_model == "text-embedding-3-small"
     assert settings.chat_model == "gpt-4.1-mini"
+    assert settings.llm_timeout_seconds == 30.0
+    assert settings.llm_max_retries == 2
     assert settings.vector_store_path == Path("data/vector_store")
     assert settings.top_k == 5
     assert settings.similarity_threshold == 0.75
@@ -35,6 +39,8 @@ def test_settings_read_environment_overrides(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setenv("EMBEDDING_MODEL", "embedding-test")
     monkeypatch.setenv("CHAT_MODEL", "chat-test")
+    monkeypatch.setenv("LLM_TIMEOUT_SECONDS", "12.5")
+    monkeypatch.setenv("LLM_MAX_RETRIES", "4")
     monkeypatch.setenv("VECTOR_STORE_PATH", "tmp/vector-store")
     monkeypatch.setenv("TOP_K", "8")
     monkeypatch.setenv("SIMILARITY_THRESHOLD", "0.61")
@@ -49,6 +55,8 @@ def test_settings_read_environment_overrides(monkeypatch) -> None:
     assert settings.openai_api_key == "test-key"
     assert settings.embedding_model == "embedding-test"
     assert settings.chat_model == "chat-test"
+    assert settings.llm_timeout_seconds == 12.5
+    assert settings.llm_max_retries == 4
     assert settings.vector_store_path == Path("tmp/vector-store")
     assert settings.top_k == 8
     assert settings.similarity_threshold == 0.61
