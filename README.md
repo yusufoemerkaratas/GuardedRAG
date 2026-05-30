@@ -22,6 +22,7 @@ Issue #1 provides the project foundation:
 - Embedding service with local fallback for offline development and tests.
 - Persistent local vector store for embedded document chunks.
 - Retrieval and RAG query endpoints with source-aware responses.
+- Strict structured RAG answer schema for generated responses.
 
 ## Local Setup
 
