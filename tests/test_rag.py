@@ -22,9 +22,31 @@ class RecordingAnswerGenerator:
         self,
         question: str,
         context_chunks: list[RetrievalSearchResult],
-    ) -> str:
+    ) -> dict[str, object]:
         self.calls.append((question, context_chunks))
-        return "grounded answer"
+        return {
+            "answer": "grounded answer",
+            "answerable": True,
+            "confidence": 0.91,
+            "sources": [
+                {
+                    "document_id": context_chunks[0].document_id,
+                    "chunk_id": context_chunks[0].chunk_id,
+                    "chunk_index": context_chunks[0].chunk_index,
+                    "page_number": context_chunks[0].page_number,
+                    "score": context_chunks[0].score,
+                }
+            ],
+        }
+
+
+class InvalidAnswerGenerator:
+    def generate(
+        self,
+        question: str,
+        context_chunks: list[RetrievalSearchResult],
+    ) -> dict[str, str]:
+        return {"raw": "unvalidated text"}
 
 
 class FailingRetrievalService:
@@ -101,6 +123,20 @@ def test_rag_service_returns_fallback_when_retrieval_fails() -> None:
     response = service.query(question="Unknown?", top_k=5)
 
     assert answer_generator.calls == []
+    assert response.answer == FALLBACK_ANSWER
+    assert response.answerable is False
+    assert response.confidence == 0.0
+    assert response.sources == []
+
+
+def test_rag_service_returns_fallback_for_invalid_generated_answer() -> None:
+    service = RAGService(
+        retrieval_service=FakeRetrievalService(_retrieval_response()),
+        answer_generator=InvalidAnswerGenerator(),
+    )
+
+    response = service.query(question="What is in the source?", top_k=3)
+
     assert response.answer == FALLBACK_ANSWER
     assert response.answerable is False
     assert response.confidence == 0.0
