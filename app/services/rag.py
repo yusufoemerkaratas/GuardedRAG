@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from app.schemas.rag import RAGAnswer, RAGQueryResponse, SourceChunk
 from app.schemas.retrieval import RetrievalSearchResult
-from app.services.llm import LLMClient, LLMClientError, OpenAIResponsesLLMClient
+from app.services.llm import LLMClient, LLMClientError, build_llm_client
 from app.services.prompts import build_context_only_prompt
 from app.services.retrieval import RetrievalService
 
@@ -47,7 +47,7 @@ class ContextOnlyAnswerGenerator:
 
 class LLMAnswerGenerator:
     def __init__(self, llm_client: LLMClient | None = None) -> None:
-        self.llm_client = llm_client or OpenAIResponsesLLMClient()
+        self.llm_client = llm_client or build_llm_client()
 
     def generate(
         self,
