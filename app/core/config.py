@@ -15,6 +15,8 @@ class Settings(BaseModel):
     openai_api_key: Optional[str] = None
     embedding_model: str = "text-embedding-3-small"
     chat_model: str = "gpt-4.1-mini"
+    llm_timeout_seconds: float = Field(default=30.0, gt=0)
+    llm_max_retries: int = Field(default=2, ge=0)
 
     vector_store_path: Path = Path("data/vector_store")
     top_k: int = Field(default=5, ge=1)
@@ -53,6 +55,8 @@ def load_settings() -> Settings:
         openai_api_key=_optional_env("OPENAI_API_KEY"),
         embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
         chat_model=os.getenv("CHAT_MODEL", "gpt-4.1-mini"),
+        llm_timeout_seconds=_float_env("LLM_TIMEOUT_SECONDS", 30.0),
+        llm_max_retries=_int_env("LLM_MAX_RETRIES", 2),
         vector_store_path=Path(os.getenv("VECTOR_STORE_PATH", "data/vector_store")),
         top_k=_int_env("TOP_K", 5),
         similarity_threshold=_float_env("SIMILARITY_THRESHOLD", 0.75),

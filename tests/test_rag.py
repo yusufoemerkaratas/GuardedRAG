@@ -1,7 +1,8 @@
 from app.api import routes
 from app.schemas.rag import RAGQueryRequest
 from app.schemas.retrieval import RetrievalSearchResponse, RetrievalSearchResult
-from app.services.rag import FALLBACK_ANSWER, RAGService
+from app.services.llm import MockLLMClient
+from app.services.rag import FALLBACK_ANSWER, LLMAnswerGenerator, RAGService
 
 
 class FakeRetrievalService:
@@ -140,6 +141,42 @@ def test_rag_service_returns_fallback_for_invalid_generated_answer() -> None:
     assert response.answer == FALLBACK_ANSWER
     assert response.answerable is False
     assert response.confidence == 0.0
+    assert response.sources == []
+
+
+def test_rag_service_uses_mock_llm_client_with_retrieved_context() -> None:
+    llm_client = MockLLMClient(
+        response_text=(
+            '{"answer":"llm answer","answerable":true,"confidence":0.91,'
+            '"sources":[{"document_id":"doc-1","chunk_id":"chunk-1",'
+            '"chunk_index":0,"page_number":2,"score":0.91}]}'
+        )
+    )
+    service = RAGService(
+        retrieval_service=FakeRetrievalService(_retrieval_response()),
+        answer_generator=LLMAnswerGenerator(llm_client=llm_client),
+    )
+
+    response = service.query(question="What is in the source?", top_k=3)
+
+    assert response.answer == "llm answer"
+    assert response.answerable is True
+    assert "What is in the source?" in llm_client.prompts[0]
+    assert "retrieved source context" in llm_client.prompts[0]
+    assert "Return only valid JSON" in llm_client.prompts[0]
+
+
+def test_rag_service_returns_fallback_when_llm_client_fails() -> None:
+    llm_client = MockLLMClient(response_text="", fail=True)
+    service = RAGService(
+        retrieval_service=FakeRetrievalService(_retrieval_response()),
+        answer_generator=LLMAnswerGenerator(llm_client=llm_client),
+    )
+
+    response = service.query(question="What is in the source?", top_k=3)
+
+    assert response.answer == FALLBACK_ANSWER
+    assert response.answerable is False
     assert response.sources == []
 
 
