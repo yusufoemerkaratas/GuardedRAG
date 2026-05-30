@@ -6,7 +6,7 @@ class RAGQueryRequest(BaseModel):
     top_k: int | None = Field(default=None, ge=1)
 
 
-class RAGSource(BaseModel):
+class SourceChunk(BaseModel):
     document_id: str
     chunk_id: str
     chunk_index: int
@@ -14,8 +14,12 @@ class RAGSource(BaseModel):
     score: float
 
 
-class RAGQueryResponse(BaseModel):
+class RAGAnswer(BaseModel):
     answer: str
     answerable: bool
     confidence: float = Field(ge=0.0, le=1.0)
-    sources: list[RAGSource]
+    sources: list[SourceChunk]
+
+
+class RAGQueryResponse(RAGAnswer):
+    pass
