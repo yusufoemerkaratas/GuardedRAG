@@ -92,17 +92,25 @@ docker compose logs -f api
 Configuration is read from environment variables. Local secrets should stay in
 `.env`; never commit real API keys.
 
+GitHub Models is the default LLM provider. Use a GitHub token with Models access
+and `models: read` permission as `GITHUB_MODELS_TOKEN`.
+
 | Variable | Default | Purpose |
 |---|---|---|
 | `APP_ENV` | `development` | Runtime environment label. |
 | `APP_NAME` | `GuardedRAG API` | API title shown in OpenAPI. |
 | `APP_VERSION` | `0.1.0` | API version shown in OpenAPI and root response. |
 | `SERVICE_NAME` | `guardedrag` | Internal service name for health checks. |
-| `OPENAI_API_KEY` | empty | Optional provider key for future model calls. |
+| `OPENAI_API_KEY` | empty | Optional OpenAI provider key. |
+| `GITHUB_MODELS_TOKEN` | empty | GitHub token used when `LLM_PROVIDER=github`. |
 | `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model name. |
-| `CHAT_MODEL` | `gpt-4.1-mini` | Chat model name. |
+| `CHAT_MODEL` | `gpt-4.1-mini` | OpenAI chat model name. |
+| `LLM_PROVIDER` | `github` | LLM provider to use. Supported values: `github`, `openai`. |
 | `LLM_TIMEOUT_SECONDS` | `30` | Timeout for LLM provider calls. |
 | `LLM_MAX_RETRIES` | `2` | Number of LLM provider retries after transient errors. |
+| `GITHUB_MODELS_MODEL` | `openai/gpt-4.1` | GitHub Models model ID. |
+| `GITHUB_MODELS_BASE_URL` | `https://models.github.ai/inference/chat/completions` | GitHub Models inference endpoint. |
+| `GITHUB_MODELS_API_VERSION` | `2026-03-10` | GitHub Models API version header. |
 | `VECTOR_STORE_PATH` | `data/vector_store` | Local vector store directory. |
 | `TOP_K` | `5` | Number of retrieved chunks to return. |
 | `SIMILARITY_THRESHOLD` | `0.75` | Minimum retrieval similarity score. |
