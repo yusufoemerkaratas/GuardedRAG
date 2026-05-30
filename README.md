@@ -23,6 +23,7 @@ Issue #1 provides the project foundation:
 - Persistent local vector store for embedded document chunks.
 - Retrieval and RAG query endpoints with source-aware responses.
 - Strict structured RAG answer schema for generated responses.
+- Context-only prompt template for source-grounded answers.
 
 ## Local Setup
 
