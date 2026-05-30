@@ -24,6 +24,7 @@ Issue #1 provides the project foundation:
 - Retrieval and RAG query endpoints with source-aware responses.
 - Strict structured RAG answer schema for generated responses.
 - Context-only prompt template for source-grounded answers.
+- LLM client abstraction with OpenAI and mock implementations.
 
 ## Local Setup
 
@@ -100,6 +101,8 @@ Configuration is read from environment variables. Local secrets should stay in
 | `OPENAI_API_KEY` | empty | Optional provider key for future model calls. |
 | `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model name. |
 | `CHAT_MODEL` | `gpt-4.1-mini` | Chat model name. |
+| `LLM_TIMEOUT_SECONDS` | `30` | Timeout for LLM provider calls. |
+| `LLM_MAX_RETRIES` | `2` | Number of LLM provider retries after transient errors. |
 | `VECTOR_STORE_PATH` | `data/vector_store` | Local vector store directory. |
 | `TOP_K` | `5` | Number of retrieved chunks to return. |
 | `SIMILARITY_THRESHOLD` | `0.75` | Minimum retrieval similarity score. |
