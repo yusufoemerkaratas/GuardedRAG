@@ -242,7 +242,16 @@ Example response:
 
 Runs retrieval first, builds context only from chunks that pass the similarity
 threshold, and returns a source-aware answer. If no context is strong enough,
-the endpoint returns a fallback response without generating an answer.
+the endpoint returns a fallback response without generating an answer:
+
+```json
+{
+  "answer": "Dazu liegen in den bereitgestellten Dokumenten keine ausreichenden Informationen vor.",
+  "answerable": false,
+  "confidence": 0.0,
+  "sources": []
+}
+```
 
 Example request:
 
