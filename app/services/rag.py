@@ -14,8 +14,8 @@ from app.services.retrieval import RetrievalService
 
 
 FALLBACK_ANSWER = (
-    "I could not answer from the indexed sources because no retrieved context "
-    "passed the similarity threshold."
+    "Dazu liegen in den bereitgestellten Dokumenten keine ausreichenden "
+    "Informationen vor."
 )
 
 logger = logging.getLogger(__name__)
@@ -92,6 +92,9 @@ class RAGService:
             structured_answer = RAGAnswer.model_validate(_decode_answer(raw_answer))
         except (json.JSONDecodeError, LLMClientError, ValidationError):
             logger.exception("rag_answer_validation_failed")
+            return _fallback_response()
+
+        if not structured_answer.answerable:
             return _fallback_response()
 
         return RAGQueryResponse(**structured_answer.model_dump())
