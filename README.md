@@ -246,7 +246,7 @@ the endpoint returns a fallback response without generating an answer:
 
 ```json
 {
-  "answer": "Dazu liegen in den bereitgestellten Dokumenten keine ausreichenden Informationen vor.",
+  "answer": "The provided documents do not contain enough information to answer this question.",
   "answerable": false,
   "confidence": 0.0,
   "sources": []
