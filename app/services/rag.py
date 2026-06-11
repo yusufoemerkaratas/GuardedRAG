@@ -14,8 +14,8 @@ from app.services.retrieval import RetrievalService
 
 
 FALLBACK_ANSWER = (
-    "Dazu liegen in den bereitgestellten Dokumenten keine ausreichenden "
-    "Informationen vor."
+    "The provided documents do not contain enough information to answer this "
+    "question."
 )
 
 logger = logging.getLogger(__name__)
