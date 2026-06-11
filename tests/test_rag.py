@@ -50,6 +50,28 @@ class InvalidAnswerGenerator:
         return {"raw": "unvalidated text"}
 
 
+class UnanswerableAnswerGenerator:
+    def generate(
+        self,
+        question: str,
+        context_chunks: list[RetrievalSearchResult],
+    ) -> dict[str, object]:
+        return {
+            "answer": "not enough context",
+            "answerable": False,
+            "confidence": 0.42,
+            "sources": [
+                {
+                    "document_id": context_chunks[0].document_id,
+                    "chunk_id": context_chunks[0].chunk_id,
+                    "chunk_index": context_chunks[0].chunk_index,
+                    "page_number": context_chunks[0].page_number,
+                    "score": context_chunks[0].score,
+                }
+            ],
+        }
+
+
 class FailingRetrievalService:
     def search(self, query: str, top_k: int | None = None) -> RetrievalSearchResponse:
         raise RuntimeError("retrieval unavailable")
@@ -112,6 +134,12 @@ def test_rag_service_returns_fallback_without_generation_when_unanswerable() -> 
     assert response.answerable is False
     assert response.confidence == 0.0
     assert response.sources == []
+    assert response.model_dump() == {
+        "answer": FALLBACK_ANSWER,
+        "answerable": False,
+        "confidence": 0.0,
+        "sources": [],
+    }
 
 
 def test_rag_service_returns_fallback_when_retrieval_fails() -> None:
@@ -142,6 +170,22 @@ def test_rag_service_returns_fallback_for_invalid_generated_answer() -> None:
     assert response.answerable is False
     assert response.confidence == 0.0
     assert response.sources == []
+
+
+def test_rag_service_normalizes_unanswerable_generated_answer() -> None:
+    service = RAGService(
+        retrieval_service=FakeRetrievalService(_retrieval_response()),
+        answer_generator=UnanswerableAnswerGenerator(),
+    )
+
+    response = service.query(question="What is in the source?", top_k=3)
+
+    assert response.model_dump() == {
+        "answer": FALLBACK_ANSWER,
+        "answerable": False,
+        "confidence": 0.0,
+        "sources": [],
+    }
 
 
 def test_rag_service_uses_mock_llm_client_with_retrieved_context() -> None:
